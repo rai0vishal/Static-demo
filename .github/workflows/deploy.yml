@@ -46,5 +46,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy public --project-name=static-demo-ao3
+          command: pages deploy public --project-name=Static-demo
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
