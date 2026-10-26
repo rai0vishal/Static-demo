@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b1020" />
+  <meta name="description" content="An interactive, polished static website demo built for Cloudflare Pages." />
+  <title>Cloudflare Studio — Static Site Demo</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1020;
+      --panel: rgba(19, 27, 49, .78);
+      --panel-solid: #131b31;
+      --text: #f4f7ff;
+      --muted: #aab5ce;
+      --line: rgba(190, 205, 238, .16);
+      --orange: #ff9b45;
+      --orange-2: #ff6b35;
+      --cyan: #66e3e2;
+      --green: #8be0b0;
+      --shadow: 0 24px 70px rgba(0,0,0,.28);
+      --radius: 22px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse at 12% 0%, rgba(255, 133, 58, .16), transparent 36rem),
+        radial-gradient(ellipse at 90% 20%, rgba(73, 153, 255, .14), transparent 34rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    .container { width: min(1120px, calc(100% - 40px)); margin-inline: auto; }
+    .topbar {
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: blur(18px);
+      background: rgba(11, 16, 32, .76);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .brand { display: flex; align-items: center; gap: 11px; font-weight: 800; letter-spacing: -.03em; }
+    .brand-mark {
+      width: 38px; height: 38px; display: grid; place-items: center; border-radius: 12px;
+      color: #1b1420; background: linear-gradient(135deg, #ffc36d, var(--orange-2));
+      box-shadow: 0 8px 24px rgba(255, 122, 53, .28); font-weight: 950;
+    }
+    .brand small { display: block; color: var(--muted); font-weight: 500; letter-spacing: .02em; font-size: 11px; margin-top: -3px; }
+    .nav-links { display: flex; align-items: center; gap: 25px; color: var(--muted); font-size: 14px; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+    .button {
+      border: 1px solid var(--line); border-radius: 12px; padding: 10px 15px;
+      color: var(--text); background: rgba(255,255,255,.04); transition: transform .2s, border-color .2s, background .2s;
+      display: inline-flex; justify-content: center; align-items: center; gap: 8px; font-weight: 700; font-size: 13px;
+    }
+    .button:hover { transform: translateY(-2px); border-color: rgba(255,255,255,.32); }
+    .button.primary { background: linear-gradient(135deg, var(--orange), var(--orange-2)); color: #23150d; border-color: transparent; box-shadow: 0 10px 30px rgba(255, 111, 52, .2); }
+    .button.small { padding: 8px 11px; font-size: 12px; }
+    .menu-toggle { display: none; }
+    .hero { padding: 84px 0 58px; display: grid; grid-template-columns: 1.1fr .9fr; align-items: center; gap: 58px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 7px 11px; border: 1px solid rgba(255,155,69,.28); border-radius: 999px; color: #ffd0a0; background: rgba(255,155,69,.08); font-size: 12px; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; }
+    .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 5px rgba(139,224,176,.12); }
+    h1 { font-size: clamp(42px, 6.2vw, 72px); line-height: 1.03; letter-spacing: -.065em; margin: 20px 0; max-width: 720px; }
+    .gradient-text { background: linear-gradient(100deg, #fff2dd 0%, #ffad66 42%, #ff704b 72%, #79dce5 100%); color: transparent; background-clip: text; -webkit-background-clip: text; }
+    .hero-copy { color: var(--muted); font-size: 17px; max-width: 570px; }
+    .hero-buttons { display: flex; flex-wrap: wrap; gap: 12px; margin: 27px 0 22px; }
+    .micro-note { font-size: 12px; color: #8390ad; }
+    .visual-wrap { position: relative; }
+    .glow { position: absolute; inset: 10% 4%; background: linear-gradient(135deg, rgba(255,130,61,.2), rgba(67,154,255,.15)); filter: blur(55px); border-radius: 50%; }
+    .dashboard { position: relative; border: 1px solid rgba(201,216,255,.2); border-radius: 24px; background: linear-gradient(155deg, rgba(26,36,63,.96), rgba(14,20,38,.96)); box-shadow: var(--shadow); overflow: hidden; transform: perspective(1200px) rotateY(-4deg) rotateX(2deg); }
+    .dash-top { display: flex; align-items: center; justify-content: space-between; padding: 17px 19px; border-bottom: 1px solid var(--line); }
+    .dots { display: flex; gap: 5px; }
+    .dots i { width: 7px; height: 7px; border-radius: 50%; background: #6f7b98; }
+    .dash-label { color: var(--muted); font-size: 11px; }
+    .dash-content { padding: 21px; }
+    .dash-heading { display: flex; align-items: start; justify-content: space-between; gap: 10px; }
+    .dash-heading strong { font-size: 18px; letter-spacing: -.03em; }
+    .live { color: var(--green); background: rgba(139,224,176,.1); border: 1px solid rgba(139,224,176,.18); border-radius: 8px; padding: 4px 7px; font-size: 10px; font-weight: 800; }
+    .metric-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 18px 0; }
+    .metric { padding: 14px; background: rgba(255,255,255,.035); border: 1px solid var(--line); border-radius: 14px; }
+    .metric span { display: block; color: var(--muted); font-size: 11px; }
+    .metric strong { display: block; margin-top: 5px; font-size: 25px; letter-spacing: -.05em; }
+    .metric em { color: var(--green); font-style: normal; font-size: 10px; }
+    .chart { width: 100%; height: 112px; display: block; margin-top: 5px; }
+    .chart-caption { display: flex; justify-content: space-between; color: var(--muted); font-size: 10px; margin-top: 3px; }
+    .float-chip { position: absolute; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: rgba(18,27,49,.92); box-shadow: var(--shadow); backdrop-filter: blur(14px); font-size: 12px; }
+    .float-chip strong { display: block; font-size: 15px; }
+    .float-chip.one { left: -28px; bottom: 45px; }
+    .float-chip.two { right: -20px; top: 50px; }
+    .section { padding: 66px 0; }
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 27px; }
+    .section-kicker { color: var(--orange); text-transform: uppercase; letter-spacing: .14em; font-weight: 800; font-size: 11px; }
+    h2 { margin: 7px 0 0; font-size: clamp(28px, 4vw, 42px); letter-spacing: -.05em; line-height: 1.12; }
+    .section-head p { max-width: 440px; color: var(--muted); margin: 0; font-size: 14px; }
+    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+    .feature-card { padding: 23px; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(145deg, rgba(23,32,57,.82), rgba(15,22,41,.8)); transition: transform .22s, border-color .22s; }
+    .feature-card:hover { transform: translateY(-5px); border-color: rgba(255,155,69,.45); }
+    .icon-box { width: 43px; height: 43px; display: grid; place-items: center; border-radius: 13px; background: rgba(255,155,69,.1); border: 1px solid rgba(255,155,69,.18); font-size: 20px; }
+    .feature-card h3 { margin: 17px 0 7px; font-size: 17px; letter-spacing: -.025em; }
+    .feature-card p { color: var(--muted); font-size: 13px; margin: 0; }
+    .demo-grid { display: grid; grid-template-columns: .95fr 1.05fr; gap: 18px; align-items: stretch; }
+    .panel { border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; background: var(--panel); box-shadow: 0 14px 45px rgba(0,0,0,.12); }
+    .panel h3 { margin: 0 0 6px; font-size: 20px; letter-spacing: -.035em; }
+    .panel-intro { color: var(--muted); margin: 0 0 20px; font-size: 13px; }
+    .counter-display { font-size: 64px; font-weight: 850; letter-spacing: -.07em; text-align: center; padding: 14px 0 8px; }
+    .counter-controls { display: flex; justify-content: center; gap: 9px; }
+    .counter-controls .button { min-width: 54px; font-size: 18px; }
+    .status-line { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+    .status-line:last-child { border-bottom: 0; }
+    .status-pill { color: var(--green); font-size: 11px; font-weight: 800; background: rgba(139,224,176,.1); padding: 5px 8px; border-radius: 8px; white-space: nowrap; }
+    .status-pill.warning { color: #ffd08b; background: rgba(255,208,139,.1); }
+    .checklist { display: grid; gap: 11px; margin-top: 18px; }
+    .check-item { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; }
+    .check-item input { accent-color: var(--orange); width: 16px; height: 16px; }
+    .progress-track { height: 7px; background: rgba(255,255,255,.08); border-radius: 999px; overflow: hidden; margin-top: 15px; }
+    .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--orange), var(--cyan)); border-radius: inherit; transition: width .25s ease; }
+    .progress-label { display: flex; justify-content: space-between; margin-top: 8px; font-size: 11px; color: var(--muted); }
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .step { padding: 19px; border: 1px solid var(--line); border-radius: 17px; background: rgba(255,255,255,.025); }
+    .step-num { color: var(--orange); font-size: 12px; font-weight: 900; letter-spacing: .1em; }
+    .step h3 { margin: 9px 0 6px; font-size: 15px; }
+    .step p { color: var(--muted); font-size: 12px; margin: 0; }
+    .cta { display: flex; align-items: center; justify-content: space-between; gap: 25px; padding: 31px; border: 1px solid rgba(255,155,69,.25); border-radius: 24px; background: radial-gradient(ellipse at right, rgba(255,130,61,.12), transparent 45%), rgba(255,255,255,.025); }
+    .cta p { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
+    footer { padding: 30px 0 38px; color: #8390ad; font-size: 12px; }
+    .footer-inner { display: flex; justify-content: space-between; gap: 20px; border-top: 1px solid var(--line); padding-top: 22px; }
+    .toast { position: fixed; bottom: 22px; left: 50%; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; z-index: 20; padding: 12px 16px; border: 1px solid var(--line); border-radius: 12px; background: #17213a; color: var(--text); box-shadow: var(--shadow); font-size: 13px; transition: .25s ease; max-width: calc(100% - 32px); }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    @media (max-width: 850px) {
+      .hero { grid-template-columns: 1fr; gap: 38px; padding-top: 60px; }
+      .visual-wrap { max-width: 590px; width: 100%; margin: auto; }
+      .feature-grid { grid-template-columns: repeat(2, 1fr); }
+      .steps { grid-template-columns: repeat(2, 1fr); }
+      .section-head { align-items: start; flex-direction: column; }
+    }
+    @media (max-width: 600px) {
+      .container { width: min(100% - 28px, 1120px); }
+      .nav { min-height: 66px; }
+      .nav-links { display: none; position: absolute; top: 66px; left: 0; right: 0; padding: 18px 22px; background: #0f172c; border-bottom: 1px solid var(--line); flex-direction: column; align-items: start; gap: 16px; }
+      .nav-links.open { display: flex; }
+      .nav-actions .button { display: none; }
+      .menu-toggle { display: inline-flex; }
+      .hero { padding: 48px 0 38px; }
+      .hero-copy { font-size: 15px; }
+      .dashboard { transform: none; }
+      .float-chip.one { left: -4px; bottom: 24px; }
+      .float-chip.two { right: -4px; top: 28px; }
+      .feature-grid, .demo-grid, .steps { grid-template-columns: 1fr; }
+      .section { padding: 48px 0; }
+      .panel { padding: 20px; }
+      .cta { flex-direction: column; align-items: start; padding: 24px; }
+      .footer-inner { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container nav">
+      <a class="brand" href="#home" aria-label="Cloudflare Studio home">
+        <span class="brand-mark">C</span>
+        <span>Cloudflare Studio<small>STATIC SITE PLAYGROUND</small></span>
+      </a>
+      <nav class="nav-links" id="navLinks" aria-label="Main navigation">
+        <a href="#features">Features</a>
+        <a href="#playground">Playground</a>
+        <a href="#workflow">Workflow</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="button small" href="#workflow">How it works ↗</a>
+        <button class="button primary small" id="themeButton" type="button">✨ Change accent</button>
+        <button class="button menu-toggle small" id="menuButton" type="button" aria-expanded="false" aria-controls="navLinks">☰ Menu</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="home">
+    <section class="container hero">
+      <div>
+        <div class="eyebrow"><span class="pulse"></span> Live demo · No backend required</div>
+        <h1>A small website.<br /><span class="gradient-text">A big first deploy.</span></h1>
+        <p class="hero-copy">Welcome to a polished, interactive static-site demo. Explore the interface, try the mini tools, and see how HTML, CSS and JavaScript can create a rich experience without a server.</p>
+        <div class="hero-buttons">
+          <a class="button primary" href="#playground">Explore the playground <span aria-hidden="true">→</span></a>
+          <button class="button" type="button" id="welcomeButton">Show a little magic ✦</button>
+        </div>
+        <div class="micro-note">Built with plain HTML, CSS & JavaScript · Ready for Cloudflare Pages</div>
+      </div>
+
+      <div class="visual-wrap" aria-label="Illustrative dashboard preview">
+        <div class="glow"></div>
+        <div class="dashboard">
+          <div class="dash-top">
+            <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="dash-label">SITE OVERVIEW / DEMO DATA</div>
+            <span class="live">● ONLINE</span>
+          </div>
+          <div class="dash-content">
+            <div class="dash-heading">
+              <div><div class="dash-label">Your project</div><strong>Static Site Analytics</strong></div>
+              <span aria-hidden="true">↗</span>
+            </div>
+            <div class="metric-grid">
+              <div class="metric"><span>Page performance</span><strong>Fast</strong><em>↑ Optimized assets</em></div>
+              <div class="metric"><span>Server required</span><strong>No</strong><em>✓ Static delivery</em></div>
+            </div>
+            <svg class="chart" viewBox="0 0 440 112" role="img" aria-label="Decorative sample performance trend">
+              <defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff9b45" stop-opacity=".35"/><stop offset="100%" stop-color="#ff9b45" stop-opacity="0"/></linearGradient></defs>
+              <g stroke="rgba(190,205,238,.13)" stroke-width="1"><path d="M0 20H440M0 48H440M0 76H440M0 104H440"/></g>
+              <path d="M0 83 C28 78 40 86 65 65 S105 73 132 49 S176 64 201 42 S245 54 273 31 S314 45 341 26 S388 39 440 10 L440 112 L0 112 Z" fill="url(#area)"/>
+              <path d="M0 83 C28 78 40 86 65 65 S105 73 132 49 S176 64 201 42 S245 54 273 31 S314 45 341 26 S388 39 440 10" fill="none" stroke="#ffad66" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="341" cy="26" r="4" fill="#66e3e2" stroke="#17213a" stroke-width="3"/>
+            </svg>
+            <div class="chart-caption"><span>Illustrative trend — not live analytics</span><span>DEMO</span></div>
+          </div>
+        </div>
+        <div class="float-chip one"><span class="dash-label">Deployment status</span><strong>✓ Ready to publish</strong></div>
+        <div class="float-chip two"><span class="dash-label">Stack</span><strong>HTML + CSS + JS</strong></div>
+      </div>
+    </section>
+
+    <section class="container section" id="features">
+      <div class="section-head">
+        <div><div class="section-kicker">Why static?</div><h2>Simple by design.<br />Useful by nature.</h2></div>
+        <p>A static site can still feel dynamic. The browser handles the interactions, while the hosting platform serves the files.</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card"><div class="icon-box">⚡</div><h3>Lightweight delivery</h3><p>Serve prebuilt files without running a custom application server for this page.</p></article>
+        <article class="feature-card"><div class="icon-box">🛡️</div><h3>Less server maintenance</h3><p>No database or server-side runtime is needed for the demo's core features.</p></article>
+        <article class="feature-card"><div class="icon-box">📱</div><h3>Responsive layout</h3><p>The layout adapts to desktop, tablet and mobile screen sizes.</p></article>
+        <article class="feature-card"><div class="icon-box">🧩</div><h3>Browser interactions</h3><p>Buttons, checklists and theme controls are powered by client-side JavaScript.</p></article>
+        <article class="feature-card"><div class="icon-box">🔁</div><h3>Git-based workflow</h3><p>Connect a repository to a host and publish changes through commits.</p></article>
+        <article class="feature-card"><div class="icon-box">🌍</div><h3>Ready for the web</h3><p>Deploy it to a public URL and share the result with teammates or reviewers.</p></article>
+      </div>
+    </section>
+
+    <section class="container section" id="playground">
+      <div class="section-head">
+        <div><div class="section-kicker">Try it yourself</div><h2>The interactive playground</h2></div>
+        <p>These small features run entirely in your browser. Refresh the page to reset them.</p>
+      </div>
+      <div class="demo-grid">
+        <article class="panel">
+          <h3>Click counter</h3>
+          <p class="panel-intro">A tiny example of JavaScript updating the page without a reload.</p>
+          <div class="counter-display" id="counterValue" aria-live="polite">0</div>
+          <div class="counter-controls">
+            <button class="button" id="minusButton" type="button" aria-label="Decrease counter">−</button>
+            <button class="button primary" id="plusButton" type="button" aria-label="Increase counter">+</button>
+            <button class="button" id="resetButton" type="button">Reset</button>
+          </div>
+          <p class="micro-note" style="text-align:center;margin:18px 0 0">No database. No API. Just browser-side state.</p>
+        </article>
+        <article class="panel">
+          <h3>Deployment readiness</h3>
+          <p class="panel-intro">Use this checklist to track the steps for your first Cloudflare Pages deployment.</p>
+          <div class="checklist" id="deploymentChecklist">
+            <label class="check-item"><input type="checkbox" /> Website opens locally</label>
+            <label class="check-item"><input type="checkbox" /> Git repository created</label>
+            <label class="check-item"><input type="checkbox" /> Code pushed to GitHub</label>
+            <label class="check-item"><input type="checkbox" /> Cloudflare Pages deployed</label>
+            <label class="check-item"><input type="checkbox" /> Live URL tested and shared</label>
+          </div>
+          <div class="progress-track" role="progressbar" aria-label="Deployment readiness" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressTrack"><div class="progress-fill" id="progressFill"></div></div>
+          <div class="progress-label"><span id="progressText">0 of 5 complete</span><span id="progressPercent">0%</span></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="container section" id="workflow">
+      <div class="section-head">
+        <div><div class="section-kicker">From files to live URL</div><h2>Four steps to publish</h2></div>
+        <p>A simplified view of the workflow you'll use for this Cloudflare Pages research project.</p>
+      </div>
+      <div class="steps">
+        <article class="step"><div class="step-num">STEP 01</div><h3>Create</h3><p>Write your HTML, CSS and JavaScript files locally.</p></article>
+        <article class="step"><div class="step-num">STEP 02</div><h3>Commit</h3><p>Track the project with Git and push it to GitHub.</p></article>
+        <article class="step"><div class="step-num">STEP 03</div><h3>Deploy</h3><p>Connect the repository and publish the static output.</p></article>
+        <article class="step"><div class="step-num">STEP 04</div><h3>Improve</h3><p>Change the code, push a commit and verify the new deployment.</p></article>
+      </div>
+    </section>
+
+    <section class="container section">
+      <div class="cta">
+        <div><div class="section-kicker">Your turn</div><h2>Make a change. Make it yours.</h2><p>Try the accent switcher, use the counter, or tick off your deployment checklist.</p></div>
+        <button class="button primary" id="ctaButton" type="button">Celebrate progress ✨</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <span>© <span id="year"></span> Cloudflare Studio · Educational demo</span>
+      <span>Built with plain HTML, CSS & JavaScript. Demo metrics are illustrative, not live data.</span>
+    </div>
+  </footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const counterValue = document.getElementById("counterValue");
+    let count = 0;
+    function renderCount() { counterValue.textContent = count; }
+    document.getElementById("plusButton").addEventListener("click", () => { count += 1; renderCount(); });
+    document.getElementById("minusButton").addEventListener("click", () => { count -= 1; renderCount(); });
+    document.getElementById("resetButton").addEventListener("click", () => { count = 0; renderCount(); });
+
+    const checklist = [...document.querySelectorAll("#deploymentChecklist input")];
+    const progressFill = document.getElementById("progressFill");
+    const progressText = document.getElementById("progressText");
+    const progressPercent = document.getElementById("progressPercent");
+    const progressTrack = document.getElementById("progressTrack");
+    function updateProgress() {
+      const complete = checklist.filter(item => item.checked).length;
+      const percent = Math.round((complete / checklist.length) * 100);
+      progressFill.style.width = percent + "%";
+      progressText.textContent = `${complete} of ${checklist.length} complete`;
+      progressPercent.textContent = percent + "%";
+      progressTrack.setAttribute("aria-valuenow", String(percent));
+    }
+    checklist.forEach(item => item.addEventListener("change", updateProgress));
+
+    const accents = [
+      { orange: "#ff9b45", orange2: "#ff6b35", name: "sunset" },
+      { orange: "#66e3e2", orange2: "#4f8cff", name: "ocean" },
+      { orange: "#c5a3ff", orange2: "#8b6dff", name: "violet" },
+      { orange: "#8be0b0", orange2: "#36b982", name: "mint" }
+    ];
+    let accentIndex = 0;
+    document.getElementById("themeButton").addEventListener("click", () => {
+      accentIndex = (accentIndex + 1) % accents.length;
+      document.documentElement.style.setProperty("--orange", accents[accentIndex].orange);
+      document.documentElement.style.setProperty("--orange-2", accents[accentIndex].orange2);
+      showToast(`Accent changed to ${accents[accentIndex].name}.`);
+    });
+
+    const toast = document.getElementById("toast");
+    let toastTimeout;
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+    document.getElementById("welcomeButton").addEventListener("click", () => showToast("✨ Nice! You're exploring a fully client-side static site."));
+    document.getElementById("ctaButton").addEventListener("click", () => showToast("🎉 Progress saved in this session's page state. Keep going!"));
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    const menuButton = document.getElementById("menuButton");
+    const navLinks = document.getElementById("navLinks");
+    menuButton.addEventListener("click", () => {
+      const open = navLinks.classList.toggle("open");
+      menuButton.setAttribute("aria-expanded", String(open));
+    });
+    navLinks.querySelectorAll("a").forEach(link => link.addEventListener("click", () => {
+      navLinks.classList.remove("open");
+      menuButton.setAttribute("aria-expanded", "false");
+    }));
+  </script>
+</body>
+</html>
